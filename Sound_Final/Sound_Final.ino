@@ -34,7 +34,7 @@ void loop() {
       for (int i=0; i < 5; i++) { //Test if still falling
         delay(1000);
         recordAccelRegisters();
-        if (gForceZ < tempZ + 0.1) {
+        if (gForceZ < tempZ) {
           startExperiment();
           return;
         }
