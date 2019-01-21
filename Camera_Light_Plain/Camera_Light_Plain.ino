@@ -4,11 +4,15 @@
 #include <Wire.h>
 
 // Electrical pins
-const int PI_PIN = 13; //Turns on the Camera
+const int EXP_PIN = 11; //Triggers start of the experiment
+const int LIGHT_PIN = 12; //Turns on the light
+const int PI_PIN = 13; //Signals the Raspberry Pi
 
 // Gyro definitions
 long accelX, accelY, accelZ;
 float gForceX, gForceY, gForceZ;
+/*long gyroX, gyroY, gyroZ;
+float rotX, rotY, rotZ;*/
 
 const int DELAY_TIME = 200; //delay between data mesuring (ms)
 
@@ -18,11 +22,15 @@ void setup() {
   Wire.begin();
   setupMPU(); //sets up GY-520 to collect data
 
+  pinMode(EXP_PIN, OUTPUT);
   pinMode(PI_PIN, OUTPUT);
+  pinMode(LIGHT_PIN, OUTPUT);
 }
 
 void loop() {
   recordAccelRegisters(); //get and process accleromter data
+
+  //Serial.println("Force: " + String(gForceZ));
   
   if (gForceZ < 0.6) {  //
     startExperiment();
@@ -66,7 +74,28 @@ void recordAccelRegisters() {
   gForceZ = accelZ / 16384.0;
 }
 
+/* void recordGyroRegisters() {
+  Wire.beginTransmission(0b1101000); //I2C address of the MPU
+  Wire.write(0x43); //Starting register for Gyro Readings
+  Wire.endTransmission();
+  Wire.requestFrom(0b1101000,6); //Request Gyro Registers (43 - 48)
+  while(Wire.available() < 6);
+  gyroX = Wire.read()<<8|Wire.read(); //Store first two bytes into accelX
+  gyroY = Wire.read()<<8|Wire.read(); //Store middle two bytes into accelY
+  gyroZ = Wire.read()<<8|Wire.read(); //Store last two bytes into accelZ
+  rotX = gyroX / 131.0; //Covert Gyroscope data into something
+  rotY = gyroY / 131.0; //this is kinda just empty code lol
+  rotZ = gyroZ / 131.0;
+} */
+
 void printData() {
+  /* Serial.print("Gyro (deg)");
+  Serial.print(" X=");
+  Serial.print(rotX);
+  Serial.print(" Y=");
+  Serial.print(rotY);
+  Serial.print(" Z=");
+  Serial.print(rotZ); */
   Serial.print(" Accel (g)");
   Serial.print(" X=");
   Serial.print(gForceX);
@@ -79,9 +108,12 @@ void printData() {
 
 void startExperiment() {
   Serial.print("Starting experiment...");
+  digitalWrite(EXP_PIN, HIGH);
+  digitalWrite(LIGHT_PIN, HIGH);
   digitalWrite(PI_PIN, HIGH);
-  delay(1000);
+  delay(2000);
   Serial.println(" experiment running!");
+  digitalWrite(EXP_PIN, LOW);
+  digitalWrite(LIGHT_PIN, LOW);
   digitalWrite(PI_PIN, LOW);
 }
-

@@ -30,7 +30,7 @@ void setup() {
 void loop() {
   recordAccelRegisters(); //get and process accleromter data
 
-  Serial.println("Force: " + String(gForceZ));
+  //Serial.println("Force: " + String(gForceZ));
   
   float tempZ = gForceZ;
   
