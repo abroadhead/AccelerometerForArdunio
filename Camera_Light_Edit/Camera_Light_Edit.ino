@@ -1,4 +1,4 @@
-git //Credit to Kai for finding most of this off the interwebs
+//Credit to Kai for finding most of this off the interwebs
 //Pi connected by two 100 resistors connected in parallel, for 3.05V
 
 #include <Wire.h>
