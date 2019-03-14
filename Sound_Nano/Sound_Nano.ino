@@ -11,34 +11,47 @@ float gForceX, gForceY, gForceZ;
 
 const int DELAY_TIME = 1000; //delay between data mesuring (ms)
 
-File dataone;
+File datafile;
 
 void setup() {
   Serial.begin(9600);
   
   Wire.begin();
   
-  if (!SD.begin(10)) {
+  if (!SD.begin(10)) { //Tests if CS pin could find an SD card
     Serial.println("init failed");
   } else {
     Serial.println("init successful");
   }
-  dataone = SD.open("dataone.txt", FILE_WRITE);
+  datafile = SD.open("dataone.txt", FILE_WRITE);
 
-  dataone.write(".");
-  dataone.write(".");
-  dataone.write(".");
+  datafile.println(" ");
+  datafile.println("----RESET----");
+  datafile.println(" ");
 
-  dataone.close();
+  datafile.close();
+
   setupMPU(); //sets up GY-520 to collect data
 }
 
 void loop() {
   recordAccelRegisters(); //get and process accleromter data
+  
+  datafile = SD.open("dataone.txt", FILE_WRITE);
 
-  /*dataone.print(gForceX); //write data to SD card
-  dataone.print(gForceY);
-  dataone.println(gForceZ);*/
+  Serial.print(gForceX); //display data on serial logger
+  Serial.print(", ");
+  Serial.print(gForceY);
+  Serial.print(", ");
+  Serial.println(gForceZ);
+  
+  datafile.print(gForceX); //write data to SD card
+  datafile.print(", ");
+  datafile.print(gForceY);
+  datafile.print(", ");
+  datafile.println(gForceZ);
+
+  datafile.close();
   
   delay(DELAY_TIME);
 }
