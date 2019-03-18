@@ -9,7 +9,8 @@
 long accelX, accelY, accelZ;
 float gForceX, gForceY, gForceZ;
 
-const int DELAY_TIME = 1000; //delay between data mesuring (ms)
+int tonecounter = 0;
+int tonevalue = 400;
 
 File datafile;
 
@@ -23,6 +24,7 @@ void setup() {
   } else {
     Serial.println("init successful");
   }
+ 
   datafile = SD.open("dataone.txt", FILE_WRITE);
 
   datafile.println(" ");
@@ -37,31 +39,39 @@ void setup() {
 void loop() {
   recordAccelRegisters(); //get and process accleromter data
   
-  datafile = SD.open("dataone.txt", FILE_WRITE);
+  printData(); //print data to serial and SD
 
-  Serial.print(gForceX); //display data on serial logger
-  Serial.print(", ");
-  Serial.print(gForceY);
-  Serial.print(", ");
-  Serial.println(gForceZ);
+  tonecounter = ++tonecounter;
+  Serial.print(tonecounter);
+  Serial.println(" = count");
   
-  datafile.print(gForceX); //write data to SD card
-  datafile.print(", ");
-  datafile.print(gForceY);
-  datafile.print(", ");
-  datafile.println(gForceZ);
-
-  datafile.close();
+  if (tonecounter < 16){
+    tonevalue = 25;
+    Serial.println(tonevalue);
+  }
+  if (tonecounter < 11){
+    tonevalue = 200;
+    Serial.println(tonevalue);
+  }
+  if (tonecounter < 6){
+    tonevalue = 400;
+    Serial.println(tonevalue);
+  }
+  if (tonecounter == 15){
+    tonecounter = 0;
+  }
+    
+  tone(8, tonevalue, 5000); //play tone @ 400hz (port, hz, time)
   
-  delay(DELAY_TIME);
+  delay(1000);
 }
 
 //More confusing stuff is down here
 
 void setupMPU() {
-  Wire.beginTransmission(0b1101000); //This is the I2C address of the MPU (b1101000/b1101001 for AC0 low/high datasheet sec. 9.2)
+  Wire.beginTransmission(0b1101000); //This is the I2C addre  Wire.write(0b00000000); //Setting SLEEP register to 0. (Required; see Note on p. 9)
+//ss of the MPU (b1101000/b1101001 for AC0 low/high datasheet sec. 9.2)
   Wire.write(0x6B); //Accessing the register 6B - Power Management (Sec. 4.28)
-  Wire.write(0b00000000); //Setting SLEEP register to 0. (Required; see Note on p. 9)
   Wire.endTransmission();  
   Wire.beginTransmission(0b1101000); //I2C address of the MPU
   Wire.write(0x1B); //Accessing the register 1B - Gyroscope Configuration (Sec. 4.4) 
@@ -88,12 +98,19 @@ void recordAccelRegisters() {
 }
 
 void printData() {
-  Serial.print(" Accel (g)");
-  Serial.print(" X=");
-  Serial.print(gForceX);
-  Serial.print(" Y=");
+  datafile = SD.open("dataone.txt", FILE_WRITE);
+
+  Serial.print(gForceX); //display data on serial logger
+  Serial.print(", ");
   Serial.print(gForceY);
-  Serial.print(" Z=");
-  Serial.print(gForceZ);
-  Serial.println("");
+  Serial.print(", ");
+  Serial.println(gForceZ);
+  
+  datafile.print(gForceX); //write data to SD card
+  datafile.print(", ");
+  datafile.print(gForceY);
+  datafile.print(", ");
+  datafile.println(gForceZ);
+
+  datafile.close();
 }
