@@ -40,8 +40,14 @@ void loop() {
   recordAccelRegisters(); //get and process accleromter data
 
   if (gForceZ < 0.6) {
-    printData(); //print data to serial and SD
+    datafile = SD.open("dataone.txt", FILE_WRITE);
+    datafile.println("-------------");
+    datafile.println("---FALLING---");
+    datafile.println("-------------");
+    datafile.close();
   }
+  
+  printData(); //print data to serial and SD
   
   tonecounter = ++tonecounter;
   Serial.print(tonecounter);
