@@ -38,9 +38,11 @@ void setup() {
 
 void loop() {
   recordAccelRegisters(); //get and process accleromter data
-  
-  printData(); //print data to serial and SD
 
+  if (gForceZ < 0.6) {
+    printData(); //print data to serial and SD
+  }
+  
   tonecounter = ++tonecounter;
   Serial.print(tonecounter);
   Serial.println(" = count");
